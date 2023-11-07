@@ -1,0 +1,19 @@
+version: '3'
+services:
+  application:
+    container_name: hanzi-client
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    volumes:
+      - ./nginx/${ENVIRONMENT}/:/etc/nginx/conf.d/:ro
+    networks:
+      - fraore-network
+      - hanzi-network
+networks:
+  fraore-network:
+    external: true
+  hanzi-network:
+    external: true
