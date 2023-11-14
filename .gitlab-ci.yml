@@ -1,0 +1,20 @@
+image: node:latest
+
+stages:
+  - deploy
+
+deploy:
+  stage: deploy
+  when: manual
+  only:
+    - main
+  before_script:
+    - eval $(ssh-agent -s)
+    - mkdir -p ~/.ssh
+    - chmod 600 ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - chmod 400 ~/.ssh/id_rsa
+    - ssh-add ~/.ssh/id_rsa
+    - ssh-keyscan -t rsa 54.37.50.30 >> ~/.ssh/known_hosts
+  script:
+    - ssh rocky@54.37.50.30 "cd ~/hanzi-client && git pull && cp ./envs/.env.production ./.env && sudo docker compose up -d"
