@@ -1,9 +1,5 @@
 import { ReactNode } from 'react';
 
-interface FormDataInterface {
-    [key: string]: string;
-};
-
 interface UserProviderInterface {
     children?: ReactNode;
 };
@@ -11,7 +7,6 @@ interface UserProviderInterface {
 interface UserInterface {
     id: int | null;
     email: string | null;
-    username: string | null;
     isAdmin: boolean;
     isLoggedIn: boolean;
 };
@@ -21,7 +16,6 @@ interface UserResponseInterface {
     user: {
         id: int;
         email: string;
-        username: string;
         isAdmin: boolean;
         isLoggedIn: boolean;
     };
@@ -38,18 +32,13 @@ interface ApplicationContextInterface {
     qualcosaQui: string;
 };
 
-interface CharacterTranslationInterface {
-    manguage: string;
-    translation: string;
-};
-
 interface CharacterInterface {
     id: number;
     hanzi: string;
     pinyin: string;
     untoned: string;
     hasAudio: boolean;
-    translations: CharacterTranslationInterface[];
+    translation: string;
 };
 
 interface CardInterface {
@@ -60,4 +49,4 @@ interface CardInterface {
     playAudio: boolean;
 };
 
-export { FormDataInterface, UserProviderInterface, UserInterface, UserResponseInterface, UserContextInterface, ApplicationContextInterface, CardInterface, CharacterInterface };
+export { UserProviderInterface, UserInterface, UserResponseInterface, UserContextInterface, ApplicationContextInterface, CardInterface, CharacterInterface };

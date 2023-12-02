@@ -1,43 +1,33 @@
-import { ChangeEvent, FunctionComponent, FormEvent, useState } from 'react';
+import { FunctionComponent } from 'react';
 import useUserContext from '../hooks/useUserContext';
-import { HANZI_SERVER } from '../settings';
-import { FormDataInterface, UserResponseInterface } from '../types';
+import { UserResponseInterface } from '../types';
+import { useForm, SubmitHandler } from 'react-hook-form';
+
+interface LoginFormInterface {
+    email: string;
+    password: string;
+}
 
 const Login: FunctionComponent = () => {
-    const { updateToken, user, updateUser } = useUserContext();
-    const { isLoggedIn } = user;
+    const { updateToken, updateUser } = useUserContext();
+    const { register, handleSubmit, formState: { errors } } = useForm<LoginFormInterface>();
 
-    const [formData, setFormData] = useState<FormDataInterface>({
-        email: '',
-        password: ''
-    });
-
-    const handleFormChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = event.target;
-        setFormData({
-            ...formData,
-            [name]: value
-        });
-    };
-
-    const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const response = await fetch(HANZI_SERVER.URL + '/login', {
+    const handleLogin: SubmitHandler<LoginFormInterface> = async data => {
+        const response = await fetch(process.env.REACT_APP_API_URL + '/login', {
             method: 'POST',
             credentials: 'include',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(formData)
+            body: JSON.stringify(data)
         });
-
+        
         if (response.ok) {
             const userResponse: UserResponseInterface = await response.json();
 
             updateUser({
                 id: userResponse.user.id,
                 email: userResponse.user.email,
-                username: userResponse.user.username,
                 isAdmin: userResponse.user.isAdmin,
                 isLoggedIn: true
             });
@@ -46,25 +36,19 @@ const Login: FunctionComponent = () => {
         }
     };
 
-    if (isLoggedIn) {
-        return (
-            <div>
-                LOGGATO! BOH!
-            </div>
-        );
-    }
-
     return (
         <>
             <h1>Login</h1>
-            <form onSubmit={handleLogin}>
+            <form onSubmit={handleSubmit(handleLogin)}>
                 <div>
                     <label>Email</label>
-                    <input type="text" value={formData.email} name="email" onChange={handleFormChange} autoComplete="on" />
+                    <input type="text" {...register('email', { required: true })} />
+                    {errors.email?.type === 'required' && <small>Email is required</small>}
                 </div>
                 <div>
                     <label>Password</label>
-                    <input type="password" value={formData.password} name="password" onChange={handleFormChange} autoComplete="off" />
+                    <input type="password" {...register('password', { required: true })} />
+                    {errors.password?.type === 'required' && <small>Password is required</small>}
                 </div>
                 <div>
                     <button type="submit">Submit</button>

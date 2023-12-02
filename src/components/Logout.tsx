@@ -11,7 +11,6 @@ const Logout = () => {
                 updateUser({
                     id: null,
                     email: null,
-                    username: null,
                     isAdmin: false,
                     isLoggedIn: false
                 });

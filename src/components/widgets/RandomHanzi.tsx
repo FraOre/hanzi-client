@@ -1,6 +1,5 @@
 import { useState, useEffect, FunctionComponent, ChangeEvent } from 'react';
 import { CharacterInterface } from '../../types';
-import { HANZI_SERVER } from '../../settings';
 import useUserContext from '../../hooks/useUserContext';
 import axios from 'axios';
 import Card from '../Card';
@@ -43,7 +42,7 @@ const RandomHanzi: FunctionComponent = () => {
     useEffect(() => {
         if (started && !paused) {
             const interval = setInterval(async () => {
-                const response = await axios.get(HANZI_SERVER.URL + '/characters/random', {
+                const response = await axios.get(process.env.REACT_APP_API_URL + '/characters/random', {
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': 'Bearer ' + token
@@ -80,7 +79,7 @@ const RandomHanzi: FunctionComponent = () => {
 
     useEffect(() => {
         const fetchCharacter = async () => {
-            const response = await axios.get(HANZI_SERVER.URL + '/characters/random', {
+            const response = await axios.get(process.env.REACT_APP_API_URL + '/characters/random', {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + token
@@ -167,7 +166,7 @@ const RandomHanzi: FunctionComponent = () => {
             <>
                 {charactersList.map(character =>
                     <div key={character.id}>
-                        {character.hanzi} - {character.pinyin} - {character.translations.map(translation => translation.translation).join(', ')}
+                        {character.hanzi} - {character.pinyin} - {character.translation}
                     </div>
                 )}
                 <div>

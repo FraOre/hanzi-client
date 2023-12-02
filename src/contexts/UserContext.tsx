@@ -9,7 +9,6 @@ const UserProvider: FunctionComponent<UserProviderInterface> = ({ children }) =>
     const [user, setUser] = useLocalStorage<UserInterface>('user', {
         id: null,
         email: null,
-        username: null,
         isAdmin: false,
         isLoggedIn: false
     });

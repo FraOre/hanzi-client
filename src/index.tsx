@@ -4,10 +4,12 @@ import './index.css';
 import App from './App';
 import { UserProvider } from './contexts/UserContext';
 import { BrowserRouter as Router } from 'react-router-dom';
+import { StrictMode } from 'react';
 
 const root = ReactDOM.createRoot(
     document.getElementById('app') as HTMLElement
 );
+
 root.render(
     // <StrictMode>
         <UserProvider>

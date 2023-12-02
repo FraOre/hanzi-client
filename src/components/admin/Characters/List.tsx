@@ -1,7 +1,7 @@
-import React, { useEffect, FunctionComponent, useState } from 'react';
-import { HANZI_SERVER } from '../../settings';
-import useUserContext from '../../hooks/useUserContext';
-import { CharacterInterface } from '../../types';
+import { useEffect, FunctionComponent, useState } from 'react';
+import useUserContext from '../../../hooks/useUserContext';
+import { CharacterInterface } from '../../../types';
+import { Link } from 'react-router-dom';
 
 const CharacterList: FunctionComponent = () => {
     const { token } = useUserContext();
@@ -9,7 +9,7 @@ const CharacterList: FunctionComponent = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-            const response = await fetch(HANZI_SERVER.URL + '/admin/characters', {
+            const response = await fetch(process.env.REACT_APP_API_URL + '/admin/characters', {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + token
@@ -30,7 +30,9 @@ const CharacterList: FunctionComponent = () => {
 
     return (
         <div>
-            <h1>Lista Caratteri</h1>
+            <h1>Characters list</h1>
+            <p>Number of characters: {charactersList.length}</p>
+            <Link to="/admin/characters/import">Import</Link>
             <ul>
                 {charactersList.map((char) => (
                     <li key={char.id}>

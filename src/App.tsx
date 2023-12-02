@@ -6,23 +6,25 @@ import PageNotFound from './components/PageNotFound';
 import { ApplicationProvider } from './contexts/ApplicationContext';
 import Admin from './components/admin/Admin';
 import { Routes,Route } from 'react-router-dom';
-import CharactersList from './components/admin/CharactersList';
+import CharactersList from './components/admin/Characters/List';
 import RandomHanzi from './components/widgets/RandomHanzi';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Login from './components/Login';
+import CharactersImport from './components/admin/Characters/Import';
 
 const App: FunctionComponent = () => {
     const { user } = useUserContext();
     const { isLoggedIn, isAdmin } = user;
 
-    /*if (!isLoggedIn) {
+    if (!isLoggedIn) {
         return (
             <Routes>
                 <Route path="/" element={<Login />} />
                 <Route path="*" element={<PageNotFound />} />
             </Routes>
         );
-    }*/
+    }
 
     return (
         <Routes>
@@ -35,6 +37,7 @@ const App: FunctionComponent = () => {
             {isLoggedIn && isAdmin && <>
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/admin/characters" element={<CharactersList />} />
+                <Route path="/admin/characters/import" element={<CharactersImport />} />
             </>}
             <Route path="*" element={<PageNotFound />} />
         </Routes>
