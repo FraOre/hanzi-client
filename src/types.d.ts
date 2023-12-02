@@ -41,6 +41,12 @@ interface CharacterInterface {
     translation: string;
 };
 
+interface CharacterInfoInterface {
+    character: CharacterInterface;
+    rounds: number;
+    corrects: number;
+};
+
 interface CardInterface {
     character: CharacterInterface;
     showHanzi: boolean;
@@ -49,4 +55,4 @@ interface CardInterface {
     playAudio: boolean;
 };
 
-export { UserProviderInterface, UserInterface, UserResponseInterface, UserContextInterface, ApplicationContextInterface, CardInterface, CharacterInterface };
+export { UserProviderInterface, UserInterface, UserResponseInterface, UserContextInterface, ApplicationContextInterface, CardInterface, CharacterInfoInterface, CharacterInterface };

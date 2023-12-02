@@ -1,15 +1,14 @@
 import { useEffect, FunctionComponent, useState } from 'react';
 import useUserContext from '../../../hooks/useUserContext';
-import { CharacterInterface } from '../../../types';
-import { Link } from 'react-router-dom';
+import { CharacterInfoInterface } from '../../../types';
 
 const CharacterList: FunctionComponent = () => {
     const { token } = useUserContext();
-    const [charactersList, setCharactersList] = useState<CharacterInterface[]>([]);
+    const [charactersList, setCharactersList] = useState<CharacterInfoInterface[]>([]);
 
     useEffect(() => {
         const fetchData = async () => {
-            const response = await fetch(process.env.REACT_APP_API_URL + '/characters', {
+            const response = await fetch(process.env.REACT_APP_API_URL + '/info/characters', {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + token
@@ -32,11 +31,10 @@ const CharacterList: FunctionComponent = () => {
         <div>
             <h1>Characters list</h1>
             <p>Number of characters: {charactersList.length}</p>
-            <Link to="/admin/characters/import">Import</Link>
             <ul>
-                {charactersList.map((char) => (
-                    <li key={char.id}>
-                        <strong>{char.hanzi}</strong> - Pinyin: {char.pinyin} - Untoned: {char.untoned} - Has audio: {char.hasAudio ? 'true' : 'false'} 
+                {charactersList.map((character) => (
+                    <li key={character.character.id}>
+                        <strong>{character.character.hanzi}</strong> - Pinyin: {character.character.pinyin} - Rounds: {character.rounds} - Corrects: {character.corrects}
                     </li>
                 ))}
             </ul>

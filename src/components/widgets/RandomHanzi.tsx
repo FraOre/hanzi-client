@@ -4,7 +4,7 @@ import useUserContext from '../../hooks/useUserContext';
 import axios from 'axios';
 import Card from '../Card';
 
-interface RandomHanziConfigInterface {
+interface ConfigInterface {
     intervalDuration: number,
     maxCharacters: number,
     playAudio: boolean,
@@ -13,10 +13,15 @@ interface RandomHanziConfigInterface {
     showTranslations: boolean,
 };
 
+interface ItemInterface {
+    character: CharacterInterface,
+    correct: boolean,
+};
+
 const RandomHanzi: FunctionComponent = () => {
     const { token } = useUserContext();
 
-    const [config, setConfig] = useState<RandomHanziConfigInterface>({
+    const [config, setConfig] = useState<ConfigInterface>({
         intervalDuration: 5000,
         maxCharacters: 10,
         playAudio: true,
@@ -27,12 +32,13 @@ const RandomHanzi: FunctionComponent = () => {
     const [started, setStarted] = useState<boolean>(false);
     const [paused, setPaused] = useState<boolean>(false);
     const [stopped, setStopped] = useState<boolean>(false);
+    const [saved, setSaved] = useState<boolean>(false);
     const [completed, setCompleted] = useState<boolean>(false);
-    const [charactersList, setCharactersList] = useState<CharacterInterface[]>([]);
-    const [currentCharacter, setCurrentCharacter] = useState<CharacterInterface | null>(null);
+    const [items, setItems] = useState<ItemInterface[]>([]);
+    const [item, setItem] = useState<ItemInterface | null>(null);
 
     const handlePause = () => {
-        setPaused(prevPaused => !prevPaused);
+        setPaused((prevPaused: boolean) => !prevPaused);
     };
 
     const handleStop = () => {
@@ -48,34 +54,34 @@ const RandomHanzi: FunctionComponent = () => {
                         'Authorization': 'Bearer ' + token
                     },
                     params: {
-                        excludeIds: charactersList.map(character => character.id).join(','),
+                        excludeIds: items.map((item: ItemInterface) => item.character.id).join(','),
                     }
                 });
 
                 const data = response.data;
-                setCurrentCharacter(data);
-                setCharactersList(prevCharactersList => [...prevCharactersList, data]);
+
+                setItem({ character: data, correct: true });
+                setItems((prevItems: ItemInterface[]) => [...prevItems, { character: data, correct: true }]);
             }, config.intervalDuration);
 
-            if (charactersList.length >= config.maxCharacters || stopped) {
-                console.log('clearing interval');
+            if (items.length >= config.maxCharacters || stopped) {
                 clearInterval(interval);
             }
 
             return () => clearInterval(interval);
         }
-    }, [token, started, paused, stopped, charactersList, completed, config]);
+    }, [token, started, paused, stopped, items, completed, config]);
 
     useEffect(() => {
         if (stopped) {
             setCompleted(true);
         }
-        else if (charactersList.length >= config.maxCharacters) {
+        else if (items.length >= config.maxCharacters) {
             setTimeout(() => {
                 setCompleted(true);
             }, config.intervalDuration);
         }
-    }, [stopped, charactersList, config]);
+    }, [stopped, items, config]);
 
     useEffect(() => {
         const fetchCharacter = async () => {
@@ -85,19 +91,20 @@ const RandomHanzi: FunctionComponent = () => {
                     'Authorization': 'Bearer ' + token
                 },
                 params: {
-                    excludeIds: charactersList.map(character => character.id).join(','),
+                    excludeIds: items.map((item: ItemInterface) => item.character.id).join(','),
                 }
             });
 
             const data = response.data;
-            setCurrentCharacter(data);
-            setCharactersList(prevCharactersList => [...prevCharactersList, data]);
+
+            setItem({ character: data, correct: true });
+            setItems((prevItems: ItemInterface[]) => [...prevItems, { character: data, correct: true }]);
         };
 
-        if (started && charactersList.length < 1) {
+        if (started && items.length < 1) {
             fetchCharacter();
         }
-    }, [token, started, charactersList]);
+    }, [token, started, items]);
 
     const handleConfigChange = (event: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = event.target;
@@ -107,66 +114,121 @@ const RandomHanzi: FunctionComponent = () => {
             integerValue *= 1000;
         }
 
-        setConfig(prevConfig => ({
+        setConfig((prevConfig: ConfigInterface) => ({
             ...prevConfig,
             [name]: integerValue
         }));
     };
 
+
+    const handleItemCorrentChange = (item: ItemInterface) => {
+        setItems((prevItems: ItemInterface[]) =>
+            prevItems.map((prevItem: ItemInterface) =>
+                prevItem.character.hanzi === item.character.hanzi
+                    ? { ...prevItem, correct: !prevItem.correct }
+                    : prevItem
+            )
+        );
+    };
+
+    const saveRound = async () => {
+        const response = await axios.post(process.env.REACT_APP_API_URL + '/rounds', {
+            showHanzi: config.showHanzi,
+            showPinyin: config.showPinyin,
+            showTranslations: config.showTranslations,
+            playAudio: config.playAudio,
+            intervalDuration: config.intervalDuration,
+            maxCharacters: config.maxCharacters,
+            items: items.map((item: ItemInterface) => ({
+                characterId: item.character.id,
+                correct: item.correct,
+            })),
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            }
+        });
+
+        if (response.data === 'ok') {
+            setSaved(true);
+        }
+    };
+
     if (!started) {
         return (
-            <>
-                <label><input
-                    name="showHanzi"
-                    type="checkbox"
-                    checked={config.showHanzi}
-                    onChange={() => setConfig((prevConfig) => ({ ...prevConfig, showHanzi: !prevConfig.showHanzi }))}
-                /> Show hanzi</label>
-                <label><input
-                    name="showPinyin"
-                    type="checkbox"
-                    checked={config.showPinyin}
-                    onChange={() => setConfig((prevConfig) => ({ ...prevConfig, showPinyin: !prevConfig.showPinyin }))}
-                /> Show pinyin</label>
-                <label><input
-                    name="playAudio"
-                    type="checkbox"
-                    checked={config.playAudio}
-                    onChange={() => setConfig((prevConfig) => ({ ...prevConfig, playAudio: !prevConfig.playAudio }))}
-                /> Play audio</label>
-                <label><input
-                    name="showTranslations"
-                    type="checkbox"
-                    checked={config.showTranslations}
-                    onChange={() => setConfig((prevConfig) => ({ ...prevConfig, showTranslations: !prevConfig.showTranslations }))}
-                /> Show translations</label>
-                <input
-                    type="number"
-                    name="intervalDuration"
-                    min={1}
-                    max={10}
-                    value={config.intervalDuration / 1000}
-                    onChange={handleConfigChange}
-                />
-                <input
-                    type="number"
-                    name="maxCharacters"
-                    min={1}
-                    max={50}
-                    value={config.maxCharacters}
-                    onChange={handleConfigChange}
-                />
+            <div>
+                <h5>Config</h5>
+                <div>
+                    <label><input
+                        name="showHanzi"
+                        type="checkbox"
+                        checked={config.showHanzi}
+                        onChange={() => setConfig((prevConfig: ConfigInterface) => ({ ...prevConfig, showHanzi: !prevConfig.showHanzi }))}
+                    /> Show hanzi</label>
+                </div>
+                <div>
+                    <label><input
+                        name="showPinyin"
+                        type="checkbox"
+                        checked={config.showPinyin}
+                        onChange={() => setConfig((prevConfig: ConfigInterface) => ({ ...prevConfig, showPinyin: !prevConfig.showPinyin }))}
+                    /> Show pinyin</label>
+                </div>
+                <div>
+                    <label><input
+                        name="playAudio"
+                        type="checkbox"
+                        checked={config.playAudio}
+                        onChange={() => setConfig((prevConfig: ConfigInterface) => ({ ...prevConfig, playAudio: !prevConfig.playAudio }))}
+                    /> Play audio</label>
+                </div>
+                <div>
+                    <label><input
+                        name="showTranslations"
+                        type="checkbox"
+                        checked={config.showTranslations}
+                        onChange={() => setConfig((prevConfig) => ({ ...prevConfig, showTranslations: !prevConfig.showTranslations }))}
+                    /> Show translations</label>
+                </div>
+                <div>
+                    <label><input
+                        type="number"
+                        name="intervalDuration"
+                        min={1}
+                        max={60}
+                        value={config.intervalDuration / 1000}
+                        onChange={handleConfigChange}
+                    />Interval duration</label>
+                </div>
+                <div>
+                    <label><input
+                        type="number"
+                        name="maxCharacters"
+                        min={1}
+                        max={50}
+                        value={config.maxCharacters}
+                        onChange={handleConfigChange}
+                    />Max characters</label>
+                </div>
                 <button onClick={() => setStarted(true)}>Start</button>
-            </>
+            </div>
         );
     }
 
     if (completed) {
         return (
-            <>
-                {charactersList.map(character =>
-                    <div key={character.id}>
-                        {character.hanzi} - {character.pinyin} - {character.translation}
+            <div>
+                {items.map((item, index) =>
+                    <div key={index}>
+                        <div>
+                            {item.character.hanzi} - {item.character.pinyin} - {item.character.translation}
+                            <label><input
+                                type="checkbox"
+                                checked={item.correct}
+                                onChange={() => handleItemCorrentChange(item)}
+                            /> Corretto</label>
+                        </div>
                     </div>
                 )}
                 <div>
@@ -175,19 +237,23 @@ const RandomHanzi: FunctionComponent = () => {
                         setPaused(false);
                         setStopped(false);
                         setCompleted(false);
-                        setCharactersList([]);
-                        setCurrentCharacter(null);
+                        setSaved(false);
+                        setItems([]);
+                        setItem(null);
                     }}>Restart</button>
                 </div>
-            </>
+                <div>
+                    {saved ? 'Saved' : <button onClick={saveRound}>Save</button>}
+                </div>
+            </div>
         );
     }
 
     return (
-        <>
-            {currentCharacter && <div>
+        <div>
+            {item && <div>
                 <Card
-                    character={currentCharacter}
+                    character={item.character}
                     showHanzi={config.showHanzi}
                     showPinyin={config.showPinyin}
                     showTranslations={config.showTranslations}
@@ -198,7 +264,7 @@ const RandomHanzi: FunctionComponent = () => {
                 <button onClick={handlePause}>{paused ? 'Resume' : 'Pause'}</button>
                 <button onClick={handleStop}>Stop</button>
             </div>
-        </>
+        </div>
     );
 };
 

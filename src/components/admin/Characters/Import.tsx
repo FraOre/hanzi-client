@@ -21,16 +21,15 @@ const CharactersImport: FunctionComponent = () => {
     const [characters, setCharacters] = useState<CharacterInterface[]>([]);
     const [totalErrors, setTotalErrors] = useState<number>(0);
 
-    const { register, handleSubmit, formState: { errors } } = useForm<ImportFormInterface>()
+    const { register, handleSubmit } = useForm<ImportFormInterface>()
 
     const handleImport: SubmitHandler<ImportFormInterface> = async data => {
-        const response = await axios
+        await axios
             .post<CharacterInterface[]>(process.env.REACT_APP_API_URL + '/admin/characters/import', characters, {
                 headers: {
                     'Authorization': 'Bearer ' + token
                 }
             }).then(response => {
-                // Redirect to characters list
                 window.location.href = '/admin/characters';
             }).catch(error => {
                 console.log(error);

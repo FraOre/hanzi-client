@@ -24,4 +24,4 @@ export default function useLocalStorage<T>(key: string, defaultValue: T): [T, Di
     };
 
     return [value, setValueWrap];
-}
+};
