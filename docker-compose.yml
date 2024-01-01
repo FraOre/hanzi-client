@@ -11,9 +11,6 @@ services:
       - ./nginx/${ENVIRONMENT}:/etc/nginx/conf.d
     networks:
       - fraore-network
-      - hanzi-network
 networks:
   fraore-network:
-    external: true
-  hanzi-network:
     external: true

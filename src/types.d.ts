@@ -1,26 +1,3 @@
-import { ReactNode } from 'react';
-
-interface UserProviderInterface {
-    children?: ReactNode;
-};
-
-interface UserInterface {
-    id: int | null;
-    email: string | null;
-    isAdmin: boolean;
-    isLoggedIn: boolean;
-};
-
-interface UserResponseInterface {
-    token: string;
-    user: {
-        id: int;
-        email: string;
-        isAdmin: boolean;
-        isLoggedIn: boolean;
-    };
-};
-
 interface UserContextInterface {
     token: string;
     updateToken: (token: string) => void;
@@ -30,15 +7,6 @@ interface UserContextInterface {
 
 interface ApplicationContextInterface {
     qualcosaQui: string;
-};
-
-interface CharacterInterface {
-    id: number;
-    hanzi: string;
-    pinyin: string;
-    untoned: string;
-    hasAudio: boolean;
-    translation: string;
 };
 
 interface CharacterInfoInterface {
@@ -55,4 +23,4 @@ interface CardInterface {
     playAudio: boolean;
 };
 
-export { UserProviderInterface, UserInterface, UserResponseInterface, UserContextInterface, ApplicationContextInterface, CardInterface, CharacterInfoInterface, CharacterInterface };
+export { UserContextInterface, ApplicationContextInterface, CardInterface, CharacterInfoInterface };

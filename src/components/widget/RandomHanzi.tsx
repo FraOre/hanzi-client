@@ -1,8 +1,10 @@
 import { useState, useEffect, FunctionComponent, ChangeEvent } from 'react';
-import { CharacterInterface } from '../../types';
 import useUserContext from '../../hooks/useUserContext';
 import axios from 'axios';
 import Card from '../Card';
+import { CharacterInterface } from '../../types/character';
+import CharacterFilter, { CharacterFilterField } from '../filter/CharacterFilter';
+import { CharacterFilterInterface } from '../../types/filter/character';
 
 interface ConfigInterface {
     intervalDuration: number,
@@ -10,12 +12,12 @@ interface ConfigInterface {
     playAudio: boolean,
     showHanzi: boolean,
     showPinyin: boolean,
-    showTranslations: boolean,
+    showTranslations: boolean
 };
 
 interface ItemInterface {
     character: CharacterInterface,
-    correct: boolean,
+    correct: boolean
 };
 
 const RandomHanzi: FunctionComponent = () => {
@@ -29,6 +31,7 @@ const RandomHanzi: FunctionComponent = () => {
         showPinyin: true,
         showTranslations: true
     });
+
     const [started, setStarted] = useState<boolean>(false);
     const [paused, setPaused] = useState<boolean>(false);
     const [stopped, setStopped] = useState<boolean>(false);
@@ -37,11 +40,24 @@ const RandomHanzi: FunctionComponent = () => {
     const [items, setItems] = useState<ItemInterface[]>([]);
     const [item, setItem] = useState<ItemInterface | null>(null);
 
-    const handlePause = () => {
+    const [filter, setFilter] = useState<CharacterFilterInterface>({
+        excluded: [],
+        lessons: [],
+        categories: [],
+        pinyin: '',
+        hanzi: '',
+        translation: ''
+    });
+
+    const handleFilterChange = (filter: CharacterFilterInterface): void => {
+        setFilter(filter);
+    };
+
+    const handlePause = (): void => {
         setPaused((prevPaused: boolean) => !prevPaused);
     };
 
-    const handleStop = () => {
+    const handleStop = (): void => {
         setStopped(true);
     };
 
@@ -53,9 +69,7 @@ const RandomHanzi: FunctionComponent = () => {
                         'Content-Type': 'application/json',
                         'Authorization': 'Bearer ' + token
                     },
-                    params: {
-                        excludeIds: items.map((item: ItemInterface) => item.character.id).join(','),
-                    }
+                    params: filter
                 });
 
                 const data = response.data;
@@ -70,7 +84,7 @@ const RandomHanzi: FunctionComponent = () => {
 
             return () => clearInterval(interval);
         }
-    }, [token, started, paused, stopped, items, completed, config]);
+    }, [token, started, paused, stopped, items, filter, completed, config]);
 
     useEffect(() => {
         if (stopped) {
@@ -83,6 +97,15 @@ const RandomHanzi: FunctionComponent = () => {
         }
     }, [stopped, items, config]);
 
+    /*useEffect(() => {
+        if (!completed) {
+            setFilter((prevFilter: FilterInterface) => ({
+                ...prevFilter,
+                excluded: items.map((item: ItemInterface) => item.character.id)
+            }));
+        }
+    }, [completed, items, filter]);*/
+
     useEffect(() => {
         const fetchCharacter = async () => {
             const response = await axios.get(process.env.REACT_APP_API_URL + '/characters/random', {
@@ -90,9 +113,7 @@ const RandomHanzi: FunctionComponent = () => {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + token
                 },
-                params: {
-                    excludeIds: items.map((item: ItemInterface) => item.character.id).join(','),
-                }
+                params: filter
             });
 
             const data = response.data;
@@ -104,7 +125,7 @@ const RandomHanzi: FunctionComponent = () => {
         if (started && items.length < 1) {
             fetchCharacter();
         }
-    }, [token, started, items]);
+    }, [token, started, items, filter]);
 
     const handleConfigChange = (event: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = event.target;
@@ -121,7 +142,7 @@ const RandomHanzi: FunctionComponent = () => {
     };
 
 
-    const handleItemCorrentChange = (item: ItemInterface) => {
+    const handleItemCorrectChange = (item: ItemInterface) => {
         setItems((prevItems: ItemInterface[]) =>
             prevItems.map((prevItem: ItemInterface) =>
                 prevItem.character.hanzi === item.character.hanzi
@@ -158,6 +179,17 @@ const RandomHanzi: FunctionComponent = () => {
     if (!started) {
         return (
             <div>
+                <div>
+                    <h5>Filter</h5>
+                    <CharacterFilter
+                        fields={[
+                            CharacterFilterField.LESSONS,
+                            CharacterFilterField.CATEGORIES
+                        ]}
+                        onStateChange={handleFilterChange}
+                    />
+                </div>
+                
                 <h5>Config</h5>
                 <div>
                     <label><input
@@ -188,7 +220,7 @@ const RandomHanzi: FunctionComponent = () => {
                         name="showTranslations"
                         type="checkbox"
                         checked={config.showTranslations}
-                        onChange={() => setConfig((prevConfig) => ({ ...prevConfig, showTranslations: !prevConfig.showTranslations }))}
+                        onChange={() => setConfig((prevConfig: ConfigInterface) => ({ ...prevConfig, showTranslations: !prevConfig.showTranslations }))}
                     /> Show translations</label>
                 </div>
                 <div>
@@ -226,7 +258,7 @@ const RandomHanzi: FunctionComponent = () => {
                             <label><input
                                 type="checkbox"
                                 checked={item.correct}
-                                onChange={() => handleItemCorrentChange(item)}
+                                onChange={() => handleItemCorrectChange(item)}
                             /> Corretto</label>
                         </div>
                     </div>

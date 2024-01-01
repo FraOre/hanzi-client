@@ -1,11 +1,14 @@
 
-import { FunctionComponent, createContext } from 'react';
+import { FunctionComponent, ReactNode, createContext } from 'react';
 import useLocalStorage from '../hooks/useLocalStorage';
-import { UserContextInterface, UserInterface, UserProviderInterface } from '../types';
+import { UserContextInterface } from '../types';
+import { UserInterface } from '../types/user';
 
 const UserContext = createContext<UserContextInterface | null>(null);
 
-const UserProvider: FunctionComponent<UserProviderInterface> = ({ children }) => {
+const UserProvider: FunctionComponent<{
+    children: ReactNode;
+}> = ({ children }) => {
     const [user, setUser] = useLocalStorage<UserInterface>('user', {
         id: null,
         email: null,

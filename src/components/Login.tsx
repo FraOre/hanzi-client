@@ -1,7 +1,7 @@
 import { FunctionComponent } from 'react';
 import useUserContext from '../hooks/useUserContext';
-import { UserResponseInterface } from '../types';
 import { useForm, SubmitHandler } from 'react-hook-form';
+import { UserResponseInterface } from '../types/user';
 
 interface LoginFormInterface {
     email: string;

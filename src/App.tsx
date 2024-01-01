@@ -5,13 +5,14 @@ import useUserContext from './hooks/useUserContext';
 import PageNotFound from './components/PageNotFound';
 import { ApplicationProvider } from './contexts/ApplicationContext';
 import Admin from './components/admin/Admin';
-import { Routes,Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import CharactersList from './components/admin/characters/List';
-import RandomHanzi from './components/widgets/RandomHanzi';
+import RandomHanzi from './components/widget/RandomHanzi';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Login from './components/Login';
 import CharactersImport from './components/admin/characters/Import';
+import CharacterDetail from './components/admin/characters/Detail';
 import Info from './components/info/Info';
 
 const App: FunctionComponent = () => {
@@ -42,6 +43,7 @@ const App: FunctionComponent = () => {
             {isLoggedIn && isAdmin && <>
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/admin/characters" element={<CharactersList />} />
+                <Route path="/admin/characters/:id" element={<CharacterDetail />} />
                 <Route path="/admin/characters/import" element={<CharactersImport />} />
             </>}
             <Route path="*" element={<PageNotFound />} />
