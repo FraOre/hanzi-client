@@ -8,15 +8,15 @@ interface ImportFormInterface {
 }
 
 interface CharacterInterface {
-    hanzi: string;
-    pinyin: string;
-    untoned: string;
-    translation: string,
-    isValid: boolean;
+    hanzi: string
+    pinyin: string
+    untoned: string
+    translation: string
+    isValid: boolean
 }
 
 const CharactersImport: FunctionComponent = () => {
-    const { token } = useUserContext();
+    const { accessToken: token } = useUserContext();
 
     const [characters, setCharacters] = useState<CharacterInterface[]>([]);
     const [totalErrors, setTotalErrors] = useState<number>(0);

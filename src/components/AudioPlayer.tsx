@@ -1,20 +1,20 @@
-import React, { FunctionComponent, useEffect, useRef } from 'react';
-import useUserContext from '../hooks/useUserContext';
+import React, { FunctionComponent, useEffect, useRef } from 'react'
+import useUserContext from '../hooks/useUserContext'
 
 interface AudioPlayerInterface {
-    audioUrl: string;
+    audioUrl: string
 }
 
 const AudioPlayer: FunctionComponent<AudioPlayerInterface> = ({ audioUrl }) => {
-    const { token } = useUserContext();
+    const { accessToken: token } = useUserContext()
 
-    const audioRef = useRef<HTMLAudioElement | null>(null);
+    const audioRef = useRef<HTMLAudioElement | null>(null)
 
     useEffect(() => {
-        let localRef: HTMLAudioElement;
+        let localRef: HTMLAudioElement
 
         if (audioRef.current) {
-            localRef = audioRef.current;
+            localRef = audioRef.current
         }
 
         const fetchAudio = async () => {
@@ -23,26 +23,26 @@ const AudioPlayer: FunctionComponent<AudioPlayerInterface> = ({ audioUrl }) => {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + token
                 }
-            });
-            const blob = await response.blob();
-            const audioBlobUrl = URL.createObjectURL(blob);
+            })
+            const blob = await response.blob()
+            const audioBlobUrl = URL.createObjectURL(blob)
 
             if (localRef) {
-                localRef.src = audioBlobUrl;
-                localRef.play();
+                localRef.src = audioBlobUrl
+                localRef.play()
             }
-        };
+        }
 
-        fetchAudio();
+        fetchAudio()
 
         return () => {
             if (localRef) {
-                localRef.src = '';
+                localRef.src = ''
             }
-        };
-    }, [token, audioUrl]);
+        }
+    }, [token, audioUrl])
 
-    return <audio ref={audioRef} controls={false} />;
-};
+    return <audio ref={audioRef} controls={false} />
+}
 
-export default AudioPlayer;
+export default AudioPlayer

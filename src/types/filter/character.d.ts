@@ -1,10 +1,26 @@
-interface CharacterFilterInterface {
-    excluded: number[],
-    lessons: number[],
-    categories: number[],
-    pinyin: string,
-    hanzi: string,
-    translation: string
-};
+export type SourceFilter = 'HSK' | 'Book'
 
-export { CharacterFilterInterface };
+export interface CharacterFilterInterface {
+    excluded: string[]
+    partsOfSpeech: string[]
+    pinyin: string
+    hanzi: string
+    translation: string
+    source?: SourceFilter
+    sourceFilter?: SourceHskFilterInterface | SourceBookFilterInterface
+}
+
+export interface SourceHskFilterInterface {
+    hsk?: number[]
+}
+
+export interface SourceBookFilterInterface {
+    book?: number
+    lessons?: number[]
+}
+
+export interface CharacterFilterContextInterface {
+    characterFilter: CharacterFilterInterface
+    updateCharacterFilter: (data: CharacterFilterInterface) => void
+    resetCharacterFilter: () => void
+}

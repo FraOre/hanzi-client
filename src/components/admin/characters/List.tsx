@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { CharacterInterface } from '../../../types/character';
 
 const CharactersList: FunctionComponent = () => {
-    const { token } = useUserContext();
+    const { accessToken: token } = useUserContext();
     const [charactersList, setCharactersList] = useState<CharacterInterface[]>([]);
 
     useEffect(() => {
@@ -39,19 +39,15 @@ const CharactersList: FunctionComponent = () => {
                         <th>Hanzi</th>
                         <th>Pinyin</th>
                         <th>Untoned</th>
-                        <th>Has audio</th>
-                        <th>Lesson</th>
                         <th>Category</th>
                     </tr>
                 </thead>
                 <tbody>
                     {charactersList.map((character: CharacterInterface) =>
-                        <tr key={character.id}>
+                        <tr key={character.publicId}>
                             <td>{character.hanzi}</td>
                             <td>{character.pinyin}</td>
                             <td>{character.untoned}</td>
-                            <td>{character.hasAudio ? 'Yes' : 'No'}</td>
-                            <td>{character.lesson ? character.lesson.id + ' - ' + character.lesson.title : ''}</td>
                             <td>{character.category?.name}</td>
                         </tr>
                     )}

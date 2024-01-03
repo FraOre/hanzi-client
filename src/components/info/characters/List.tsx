@@ -3,7 +3,7 @@ import useUserContext from '../../../hooks/useUserContext';
 import { CharacterInfoInterface } from '../../../types';
 
 const CharacterList: FunctionComponent = () => {
-    const { token } = useUserContext();
+    const { accessToken: token } = useUserContext();
     const [charactersList, setCharactersList] = useState<CharacterInfoInterface[]>([]);
 
     useEffect(() => {
@@ -32,7 +32,7 @@ const CharacterList: FunctionComponent = () => {
             <h1>Characters list</h1>
             <p>Number of characters: {charactersList.length}</p>
             <ul>
-                {charactersList.map((character) => (
+                {charactersList.map(character => (
                     <li key={character.character.id}>
                         <strong>{character.character.hanzi}</strong> - Pinyin: {character.character.pinyin} - Rounds: {character.rounds} - Corrects: {character.corrects}
                     </li>

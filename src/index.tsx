@@ -5,6 +5,7 @@ import App from './App';
 import { UserProvider } from './contexts/UserContext';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { StrictMode } from 'react';
+import { MantineProvider } from '@mantine/core';
 
 const root = ReactDOM.createRoot(
     document.getElementById('app') as HTMLElement
@@ -13,9 +14,11 @@ const root = ReactDOM.createRoot(
 root.render(
     // <StrictMode>
         <UserProvider>
-            <Router>
-                <App />
-            </Router>
+            <MantineProvider>    
+                <Router>
+                    <App />
+                </Router>
+            </MantineProvider>
         </UserProvider>
     // </StrictMode>
 );

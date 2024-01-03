@@ -1,14 +1,12 @@
 import { FunctionComponent, useEffect, useState } from 'react';
-import { CharacterInfoInterface } from '../../../types';
 import useUserContext from '../../../hooks/useUserContext';
 import { useParams } from 'react-router-dom';
 import { CharacterInterface } from '../../../types/character';
 
 const CharacterDetail: FunctionComponent = () => {
-    const { id } = useParams();
-    const { token } = useUserContext();
-    const [character, setCharacter] = useState<CharacterInterface | null>(null);
-    const [info, setInfo] = useState<CharacterInfoInterface | null>(null);
+    const { id } = useParams()
+    const { accessToken: token } = useUserContext()
+    const [character, setCharacter] = useState<CharacterInterface | null>(null)
 
     useEffect(() => {
         const fetchData = async () => {
@@ -29,7 +27,7 @@ const CharacterDetail: FunctionComponent = () => {
         };
 
         fetchData();
-    }, [token]);
+    }, [token, id]);
 
     return (
         character && <div>
@@ -38,10 +36,9 @@ const CharacterDetail: FunctionComponent = () => {
             <p>{character.pinyin}</p>
             <p>{character.untoned}</p>
             <p>{character.translation}</p>
-            <p>{character.lesson && character.lesson.title}</p>
             <p>{character.category && character.category.name}</p>
         </div>
-    );
-};
+    )
+}
 
-export default CharacterDetail;
+export default CharacterDetail

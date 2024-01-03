@@ -1,28 +1,28 @@
-import React from 'react';
-import useUserContext from '../hooks/useUserContext';
-import { logout } from '../api';
+import React from 'react'
+import useUserContext from '../hooks/useUserContext'
 
 const Logout = () => {
-    const { updateUser, updateToken } = useUserContext();
+    const { logoutUser } = useUserContext()
 
     const handleLogout = async () => {
-        logout()
-            .then(() => {
-                updateUser({
-                    id: null,
-                    email: null,
-                    isAdmin: false,
-                    isLoggedIn: false
-                });
-                updateToken('');
-            });
-    };
+        const response = await fetch(process.env.REACT_APP_API_URL + '/auth/logout', {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        
+        if (response.ok) {
+            logoutUser()
+        }
+    }
 
     return (
         <button type="submit" onClick={handleLogout}>
             esci
         </button>
-    );
-};
+    )
+}
 
-export default Logout;
+export default Logout

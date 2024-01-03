@@ -1,40 +1,65 @@
+import { FunctionComponent, ReactNode, createContext, useCallback, useEffect, useState } from 'react'
+import { UserContextInterface } from '../types'
+import { LoginUserInterface, RefreshResponseInterface } from '../types/auth'
+import { UserInterface } from '../types/user'
+import { set } from 'react-hook-form'
 
-import { FunctionComponent, ReactNode, createContext } from 'react';
-import useLocalStorage from '../hooks/useLocalStorage';
-import { UserContextInterface } from '../types';
-import { UserInterface } from '../types/user';
-
-const UserContext = createContext<UserContextInterface | null>(null);
+const UserContext = createContext<UserContextInterface | null>(null)
 
 const UserProvider: FunctionComponent<{
-    children: ReactNode;
+    children: ReactNode
 }> = ({ children }) => {
-    const [user, setUser] = useLocalStorage<UserInterface>('user', {
+    const anonymousUser: UserInterface = {
         id: null,
         email: null,
         isAdmin: false,
         isLoggedIn: false
-    });
+    }
 
-    const updateUser = (data: UserInterface) => {
+    const [user, setUser] = useState<UserInterface>(anonymousUser)
+
+    const updateUser = (loginUser: LoginUserInterface) => {
         setUser({
-            ...user,
-            ...data
-        });
-    };
+            ...loginUser,
+            isLoggedIn: true
+        })
+    }
 
-    // Crea token con useLocalStorage
-    const [token, setToken] = useLocalStorage<string>('token', '');
+    const logoutUser = () => {
+        setUser(anonymousUser)
+        setAccessToken('')
+    }
 
-    const updateToken = (data: string) => {
-        setToken(data);
-    };
+    const [accessToken, setAccessToken] = useState<string>('')
+
+    const updateAccessToken = (accessToken: string) => {
+        setAccessToken(accessToken)
+    }
+
+    const refreshAccessToken = useCallback(async () => {
+        const response = await fetch(process.env.REACT_APP_API_URL + '/auth/refresh', {
+            method: 'POST',
+            credentials: 'include'
+        })
+
+        if (response.ok) {
+            const refreshResponse: RefreshResponseInterface = await response.json()
+            updateAccessToken(refreshResponse.accessToken)
+            updateUser(refreshResponse.loginUser)
+        }
+    }, [])
+
+    useEffect(() => {
+        if (!accessToken) {
+            refreshAccessToken()
+        }
+    }, [accessToken, refreshAccessToken])
 
     return (
-        <UserContext.Provider value={{ token, updateToken, user, updateUser }}>
+        <UserContext.Provider value={{ accessToken, updateAccessToken, user, updateUser, logoutUser }}>
             {children}
         </UserContext.Provider>
-    );
-};
+    )
+}
 
-export { UserContext, UserProvider };
+export { UserContext, UserProvider }
