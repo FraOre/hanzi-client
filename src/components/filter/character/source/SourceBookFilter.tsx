@@ -1,40 +1,40 @@
-import { useState, useEffect, FunctionComponent, ChangeEvent } from 'react';
-import { SourceBookFilterInterface } from '../../../../types/filter/character';
-import axios, { AxiosResponse } from 'axios';
-import { BookInterface, BookLessonInterface } from '../../../../types/book';
-import useUserContext from '../../../../hooks/useUserContext';
-import useCharacterFilterContext from '../../../../hooks/filter/useCharacterFilterContext';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleInfo } from '@fortawesome/free-solid-svg-icons';
-import { Tooltip } from '@mantine/core';
+import { useState, useEffect, FunctionComponent, ChangeEvent } from 'react'
+import { SourceBookFilterInterface } from '../../../../types/filter/character'
+import axios, { AxiosResponse } from 'axios'
+import { BookInterface, BookLessonInterface } from '../../../../types/book'
+import useUserContext from '../../../../hooks/useUserContext'
+import useCharacterFilterContext from '../../../../hooks/filter/useCharacterFilterContext'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCircleInfo } from '@fortawesome/free-solid-svg-icons'
+import { Tooltip } from '@mantine/core'
 
 const SourceBookFilter: FunctionComponent = () => {
-    const { accessToken: token } = useUserContext();
-    const { characterFilter, updateCharacterFilter } = useCharacterFilterContext();
+    const { accessToken: token } = useUserContext()
+    const { characterFilter, updateCharacterFilter } = useCharacterFilterContext()
 
-    const [books, setBooks] = useState<BookInterface[]>([]);
-    const [bookLessons, setBookLessons] = useState<BookLessonInterface[]>([]);
+    const [books, setBooks] = useState<BookInterface[]>([])
+    const [bookLessons, setBookLessons] = useState<BookLessonInterface[]>([])
 
     useEffect(() => {
         const fetchBooks = async (): Promise<void> => {
-            const booksResponse: AxiosResponse = await axios.get(process.env.REACT_APP_API_URL + '/books', {
+            const booksResponse: AxiosResponse = await axios.get(process.env.REACT_APP_API_URL + '/book/all', {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + token
                 }
             })
 
-            setBooks(booksResponse.data as BookInterface[]);
+            setBooks(booksResponse.data as BookInterface[])
         };
 
-        fetchBooks();
-    }, [token]);
+        fetchBooks()
+    }, [token])
 
     const handleBookFilterChange = async (event: ChangeEvent<HTMLSelectElement>): Promise<void> => {
-        const { value } = event.target;
+        const { value } = event.target
 
         if (value) {
-            const bookId = parseInt(value);
+            const bookId = parseInt(value)
 
             updateCharacterFilter({
                 ...characterFilter,
@@ -42,24 +42,24 @@ const SourceBookFilter: FunctionComponent = () => {
                     ...characterFilter.sourceFilter as SourceBookFilterInterface,
                     book: bookId
                 }
-            });
+            })
 
-            const bookLessonsResponse: AxiosResponse = await axios.get(process.env.REACT_APP_API_URL + '/books/' + bookId + '/lessons', {
+            const bookLessonsResponse: AxiosResponse = await axios.get(process.env.REACT_APP_API_URL + '/book/' + bookId + '/lessons', {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + token
                 }
-            });
+            })
 
-            setBookLessons(bookLessonsResponse.data as BookLessonInterface[]);
+            setBookLessons(bookLessonsResponse.data as BookLessonInterface[])
         }
         else {
             updateCharacterFilter({
                 ...characterFilter,
                 sourceFilter: undefined
-            });
+            })
 
-            setBookLessons([]);
+            setBookLessons([])
         }
     };
 
@@ -67,7 +67,7 @@ const SourceBookFilter: FunctionComponent = () => {
         const { options } = event.target;
         const values = Array.from(options)
             .filter((option: HTMLOptionElement) => option.selected)
-            .map((option: HTMLOptionElement) => parseInt(option.value));
+            .map((option: HTMLOptionElement) => parseInt(option.value))
 
         updateCharacterFilter({
             ...characterFilter,
@@ -75,8 +75,8 @@ const SourceBookFilter: FunctionComponent = () => {
                 ...characterFilter.sourceFilter as SourceBookFilterInterface,
                 lessons: values
             }
-        });
-    };
+        })
+    }
 
     return (
         <div>
@@ -119,7 +119,7 @@ const SourceBookFilter: FunctionComponent = () => {
 
             </div>}
         </div>
-    );
-};
+    )
+}
 
-export default SourceBookFilter;
+export default SourceBookFilter
